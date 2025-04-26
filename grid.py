@@ -78,12 +78,14 @@ class Grid:
             return True
         return False
     
+    # In grid.py, update this method:
     def is_cell_walkable(self, row, col):
         """Check if player can walk on this cell"""
         if not self.is_valid_cell(row, col):
             return False
         # Player can't walk on burning cells
         return self.cell_states[row][col] != BURNING
+
     
     def get_adjacent_cells(self, row, col):
         """Get all valid adjacent cells"""
@@ -119,25 +121,30 @@ class Grid:
         # Spread fire
         new_burning_cells = []
         for row, col in self.burning_cells:
-            # Change this cell from burning to burned
+            # Each burning cell burns for exactly one turn
             self.cell_states[row][col] = BURNED
             
             # Try to spread fire to adjacent cells
             adjacent_cells = self.get_adjacent_cells(row, col)
             random.shuffle(adjacent_cells)  # Randomize spread direction
             
-            # Try one random direction
-            if adjacent_cells:
-                new_row, new_col = adjacent_cells[0]
-                # Fire can only spread to dry prairie
-                if (self.grid_data[new_row][new_col] == PRAIRIE and 
-                    self.cell_states[new_row][new_col] == DRY):
+            # Keep trying until fire spreads to at least one cell
+            # or until we've tried all possible directions
+            spread_success = False
+            for new_row, new_col in adjacent_cells:
+                # Fire can spread to any dry cell (prairie or other plants)
+                if self.cell_states[new_row][new_col] == DRY:
                     self.cell_states[new_row][new_col] = BURNING
                     new_burning_cells.append((new_row, new_col))
-        
+                    spread_success = True
+                    break  # Successfully spread to one cell
+                    
+            # If fire couldn't spread anywhere (surrounded by wet or burned cells),
+            # it just goes out
+                
         # Update burning cells list
         self.burning_cells = new_burning_cells
-    
+
     def is_all_prairie_burned(self):
         """Check if all prairie cells are burned"""
         for row in range(self.rows):

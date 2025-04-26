@@ -50,6 +50,7 @@ class Player:
                           (indicator_x + indicator_size//2, indicator_y + indicator_size//2), 
                           indicator_size//2)
         
+    # In player.py, update this method:
     def handle_movement(self, event):
         """Handle player movement and turning with arrow keys"""
         # Check for turn-only mode (holding SHIFT key)
@@ -78,7 +79,11 @@ class Player:
             return False  # No movement or turning
             
         # If only turning, return False for time step (no time advancement)
-        if turn_only or self.direction != old_direction:
+        if turn_only:
+            return False
+            
+        # Check if direction changed without moving
+        if self.direction != old_direction and new_row == self.row and new_col == self.col:
             return False
             
         # Check if new position is valid
