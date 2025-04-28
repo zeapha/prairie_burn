@@ -59,10 +59,10 @@ class Game:
                             self.wet_squares_left -= 1
                         
             elif self.state == 1:  # Playing phase
-                # Player movement
+                # Player movement - this happens BEFORE fire spreads
+                player_moved = False
                 if self.player.handle_movement(event):
-                    self.time_step += 1
-                    self.update_time_step()
+                    player_moved = True
                 
                 # Adding water (W key)
                 if event.key == pygame.K_w:
@@ -75,12 +75,18 @@ class Game:
                     row, col = self.player.get_adjacent_cell()
                     if row is not None and col is not None:
                         self.fire.start_fire(row, col)
+                
+                # Only update the time step if the player moved
+                if player_moved:
+                    self.time_step += 1
+                    # Now update fire after player has moved
+                    self.update_time_step()
     
     def update_time_step(self):
         # Update grid for this time step
         self.grid.update_time_step()
         
-        # Check if fire is touching player
+        # Check if fire is touching player AFTER fire has spread
         if self.grid.is_fire_adjacent_to_player(self.player.row, self.player.col):
             # Move player to random adjacent cell
             self.player.move_to_random_safe_cell()
