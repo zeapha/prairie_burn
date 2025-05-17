@@ -50,7 +50,6 @@ class Player:
                           (indicator_x + indicator_size//2, indicator_y + indicator_size//2), 
                           indicator_size//2)
         
-    # In player.py, update this method:
     def handle_movement(self, event):
         """Handle player movement and turning with arrow keys"""
         # Check for turn-only mode (holding SHIFT key)

@@ -61,8 +61,32 @@ class Game:
             elif self.state == 1:  # Playing phase
                 # Player movement - this happens BEFORE fire spreads
                 player_moved = False
-                if self.player.handle_movement(event):
-                    player_moved = True
+                
+                # For movement keys, check if the player would move into fire
+                if event.key in [pygame.K_UP, pygame.K_RIGHT, pygame.K_DOWN, pygame.K_LEFT]:
+                    # First determine the new position
+                    new_row, new_col = self.player.row, self.player.col
+                    turn_only = pygame.key.get_mods() & pygame.KMOD_SHIFT
+                    
+                    if not turn_only:
+                        if event.key == pygame.K_UP:
+                            new_row -= 1
+                        elif event.key == pygame.K_RIGHT:
+                            new_col += 1
+                        elif event.key == pygame.K_DOWN:
+                            new_row += 1
+                        elif event.key == pygame.K_LEFT:
+                            new_col -= 1
+                    
+                    # Now check if this would move into fire
+                    if not turn_only and self.grid.would_player_collide_with_fire(new_row, new_col):
+                        # Instead of moving into fire, move to a random safe cell
+                        self.player.move_to_random_safe_cell()
+                        player_moved = True
+                    else:
+                        # Normal movement handling
+                        if self.player.handle_movement(event):
+                            player_moved = True
                 
                 # Adding water (W key)
                 if event.key == pygame.K_w:
@@ -86,11 +110,9 @@ class Game:
         # Update grid for this time step
         self.grid.update_time_step()
         
-        # Check if fire is touching player AFTER fire has spread
-        if self.grid.is_fire_adjacent_to_player(self.player.row, self.player.col):
-            # Move player to random adjacent cell
-            self.player.move_to_random_safe_cell()
-            
+        # We no longer need to check if fire is adjacent to player here
+        # Only check if player and fire occupy the same space during movement
+        
         # Check win/loss conditions
         if self.grid.is_all_prairie_burned():
             self.victory = True

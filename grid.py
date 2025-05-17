@@ -103,6 +103,12 @@ class Grid:
             if self.cell_states[row][col] == BURNING:
                 return True
         return False
+        
+    def would_player_collide_with_fire(self, new_row, new_col):
+        """Check if the player would move into a burning cell"""
+        if not self.is_valid_cell(new_row, new_col):
+            return False
+        return self.cell_states[new_row][new_col] == BURNING
     
     def update_time_step(self):
         """Update grid for a time step"""
